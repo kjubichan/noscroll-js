@@ -45,13 +45,19 @@
 	function inertia_scroll() {
 		var elapsed, delta_y;
 
-		if ( pos < max && velocity <= 0 ) {
-			velocity += ( max - pos )*2;
-			init_inertia();
-		} else if ( pos > min && velocity >= 0 ) {
-			velocity -= ( pos - min )*2;
-			init_inertia();
-		}
+		// if ( pos < max ) {
+		// 	if ( velocity >= 0 )
+		// 		velocity = ( max - pos );
+		// 	else
+		// 		velocity += ( max - pos );
+		// 	init_inertia();
+		// } else if ( pos > min ) {
+		// 	if ( velocity <= 0 ) 
+		// 		velocity = ( pos - min );
+		// 	else
+		// 		velocity -= ( pos - min );
+		// 	init_inertia();
+		// }
 		if ( velocity ) {
 			elapsed = Date.now() - inertia_starts;
 			velocity = start_velocity * Math.exp(-elapsed / timeConstant);
