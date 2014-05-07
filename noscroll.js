@@ -66,7 +66,6 @@
 		}
 		return event.clientX;
 	};
-	
 
 	/**
 	 * Scrolls content to position defined by y param. Handles the overscrolling by hard overwriting the pos variable:
@@ -96,7 +95,7 @@
 		if ( (pos + velocity ) < max && ( velocity < 0 ) ) {
 			velocity = max - pos;
 		} else if ( (pos + velocity) > min && ( velocity > 0 ) ) {
-			velocity = (min - pos);
+			velocity = min - pos;
 		}
 		start_velocity = velocity;
 		start_pos = pos;
@@ -107,7 +106,6 @@
 			started_animation = true;
 		}
 	};
-
 
 	/**
 	 * The requestAnimationFrame callback. Exponentially reduce velocity and at the same rate brings closer content's pos to
@@ -130,7 +128,6 @@
 		}
 	};
 
-
 	/**
 	 * Initializes vars need to be set when user 'touches' content rectangle
 	 */
@@ -152,7 +149,6 @@
 		return false;
 	};
 
-
 	/**
 	 * Handles mouseup or touchend event
 	 */
@@ -166,7 +162,6 @@
 		event.stopPropagation();
 		return false;
 	};
-
 
 	/**
 	 * Adds speed to the content movement. Need to call init_inertia to start actual animation
@@ -192,7 +187,6 @@
 			velocity = (velocity + vector) / 2.0;
 	};
 
-
 	/**
 	 * Register the speed of mouse drag and adds it to speed. Fires 10 times/sec
 	 */
@@ -206,7 +200,6 @@
 		last_time = now;
 	};
 
-
 	/**
 	 * Handles wheel scroll while user's mouse is over the content viewport
 	 */
@@ -217,6 +210,47 @@
 		init_inertia();
 		event.stopPropagation();
 		event.preventDefault();
+	};
+
+	function on_key( event ) {
+		event = event || window.event;
+		if ( event.keyCode == 33 ) 			// pageup
+		{
+			add_speed( viewport_height*2 );
+			init_inertia();
+		} else if ( event.keyCode == 34 )	// pagedown
+		{
+			add_speed( -viewport_height*2 );
+			init_inertia();
+		} else if ( event.keyCode == 37 || event.keyCode == 38 ) 	// up left
+		{
+			add_speed( options.arrows_speed );
+			init_inertia();
+		} else if ( event.keyCode == 39 || event.keyCode == 40 )		// down right
+		{
+			add_speed( -options.arrows_speed );
+			init_inertia();
+		} else if ( event.keyCode == 36 )	// home
+		{
+			add_speed( (min - pos)*2 );
+			init_inertia();
+		} else if ( event.keyCode == 35 )	// end
+		{
+			add_speed( (max - pos )*2 );
+			init_inertia();
+		}
+		event.preventDefault();
+	};
+
+	function remove_key_listeners( event ) {
+		event.preventDefault();
+		window.removeEventListener('keyup', on_key);
+	};
+
+	function add_key_listeners( event ) {
+		window.addEventListener('keyup', on_key);
+		event.preventDefault();
+		
 	};
 
 
@@ -239,7 +273,6 @@
 		event.stopPropagation();
 	};
 
-
 	nsjs.calculate_scrolling = function() {
 		if ( dir_vertical )
 		{
@@ -248,6 +281,7 @@
 			relative = (viewport_height - parseInt( getComputedStyle(indicator).height, 10 ) )/ max;
 		} else 
 		{
+			// debugger;
 			viewport_height = parseInt( getComputedStyle( content.parentNode ).width, 10 );
 			max = viewport_height - parseInt( getComputedStyle(content).width, 10 );
 			relative = (viewport_height - parseInt( getComputedStyle(indicator).width, 10 ) )/ max;
@@ -256,13 +290,14 @@
 	};
 
 	nsjs.applyit_to = function( target, opt ) {
-		
 		var default_options = {
 			direction: 'vertical',
 			indicator: 'indicator',
 			wheel_mutiplier: 300,
+			arrows_speed: 600,
 			inertion: 325
 		};
+
 		options = typeof opt !== 'undefined' ? merge_options( default_options, opt ) : default_options;
 
 		dir_vertical = (options.direction == 'vertical');
@@ -278,13 +313,22 @@
 		// prevent content from moving due to child elements margins
 		content.style[ 'overflow'] = 'auto';
 
+
+		// prevent content from moving due to child elements margins
+		if ( !dir_vertical ) {
+			content.style[ 'display'] = 'inline-block';
+		}
+
 		if ( typeof window.ontouchstart !== 'undefined' ) {
 			viewport.addEventListener('touchstart', touch);
 		}
 		viewport.addEventListener( 'mousedown', touch );
-
+		viewport.addEventListener( 'mouseenter', add_key_listeners );
+		viewport.addEventListener( 'mouseleave', remove_key_listeners);
 		viewport.style.cursor = "move";
 
+
+	// mouse wheel support
 		if (viewport.addEventListener) {
 			// IE9, Chrome, Safari, Opera
 			viewport.addEventListener("mousewheel", wheel, false);
@@ -293,6 +337,7 @@
 		}
 		else  // IE 6/7/8
 			viewport.attachEvent("onmousewheel", wheel);
+	// mouse wheel support
 
 		window.addEventListener("resize", resizeThrottler, false);
 
