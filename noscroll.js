@@ -268,6 +268,8 @@
 	};
 
 	nsjs.calculate_scrolling = function() {
+		// temporarilly turn on to calculate dimensions with inner margins
+		content.style[ 'overflow'] = 'auto';
 		if ( dir_vertical )
 		{
 			viewport_height = parseInt( getComputedStyle( content.parentNode ).height, 10 );
@@ -279,6 +281,8 @@
 			max = viewport_height - parseInt( getComputedStyle(content).width, 10 );
 			relative = (viewport_height - parseInt( getComputedStyle(indicator).width, 10 ) )/ max;
 		}
+		// turn off
+		content.style[ 'overflow'] = '';
 		if ( max > 0 ) { max = 0; }
 
 		if ( pos < max )
@@ -308,10 +312,6 @@
 		viewport = content.parentNode,
 		indicator = document.getElementById( options.indicator );
 		velocity = 0;
-
-		// prevent content from moving due to child elements margins
-		content.style[ 'overflow'] = 'auto';
-
 
 		// prevent content from moving due to child elements margins
 		if ( !dir_vertical ) {
