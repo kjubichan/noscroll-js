@@ -74,13 +74,6 @@
 	 */
 	function scroll_content( new_pos ) {
 		pos = new_pos
-		if ( pos < max ) {
-			pos = max;
-			velocity = 0;
-		} else if ( pos > min ) {
-			velocity = 0;
-			pos = min;
-		}
 		content.style[ style_name ] = translate_name + '(' + (pos) + 'px)';
 		indicator.style[ style_name ] = translate_name + '(' + ( pos * relative) + 'px)';
 	};
@@ -239,16 +232,17 @@
 			add_speed( (max - pos )*2 );
 			init_inertia();
 		}
+		event.stopPropagation();
 		event.preventDefault();
 	};
 
 	function remove_key_listeners( event ) {
+		window.removeEventListener('keydown', on_key);
 		event.preventDefault();
-		window.removeEventListener('keyup', on_key);
 	};
 
 	function add_key_listeners( event ) {
-		window.addEventListener('keyup', on_key);
+		window.addEventListener('keydown', on_key);
 		event.preventDefault();
 		
 	};
@@ -281,12 +275,17 @@
 			relative = (viewport_height - parseInt( getComputedStyle(indicator).height, 10 ) )/ max;
 		} else 
 		{
-			// debugger;
 			viewport_height = parseInt( getComputedStyle( content.parentNode ).width, 10 );
 			max = viewport_height - parseInt( getComputedStyle(content).width, 10 );
 			relative = (viewport_height - parseInt( getComputedStyle(indicator).width, 10 ) )/ max;
 		}
 		if ( max > 0 ) { max = 0; }
+
+		if ( pos < max )
+		{
+			add_speed( (max - pos)*2 );
+			init_inertia();
+		}
 	};
 
 	nsjs.applyit_to = function( target, opt ) {
