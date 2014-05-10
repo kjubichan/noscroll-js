@@ -168,7 +168,6 @@
 			{
 				velocity = 0;
 				halt_counter = halt_threshold;
-				
 				hand_control = true;
 			} else 
 			{
@@ -207,33 +206,31 @@
 
 	function on_key( event ) {
 		event = event || window.event;
-		if ( event.keyCode == 33 ) 			// pageup
+		if ( event.keyCode >= 33 && event.keyCode <= 40 ) 
 		{
-			add_speed( viewport_height*2 );
+			if ( event.keyCode == 33 ) 			// pageup
+			{
+				add_speed( viewport_height*2 );
+			} else if ( event.keyCode == 34 )	// pagedown
+			{
+				add_speed( -viewport_height*2 );
+			} else if ( event.keyCode == 37 || event.keyCode == 38 ) 	// up left
+			{
+				add_speed( options.arrows_speed );
+			} else if ( event.keyCode == 39 || event.keyCode == 40 )		// down right
+			{
+				add_speed( -options.arrows_speed );
+			} else if ( event.keyCode == 36 )	// home
+			{
+				add_speed( (min - pos)*2 );
+			} else if ( event.keyCode == 35 )	// end
+			{
+				add_speed( (max - pos )*2 );
+			}
 			init_inertia();
-		} else if ( event.keyCode == 34 )	// pagedown
-		{
-			add_speed( -viewport_height*2 );
-			init_inertia();
-		} else if ( event.keyCode == 37 || event.keyCode == 38 ) 	// up left
-		{
-			add_speed( options.arrows_speed );
-			init_inertia();
-		} else if ( event.keyCode == 39 || event.keyCode == 40 )		// down right
-		{
-			add_speed( -options.arrows_speed );
-			init_inertia();
-		} else if ( event.keyCode == 36 )	// home
-		{
-			add_speed( (min - pos)*2 );
-			init_inertia();
-		} else if ( event.keyCode == 35 )	// end
-		{
-			add_speed( (max - pos )*2 );
-			init_inertia();
+			event.stopPropagation();
+			event.preventDefault();
 		}
-		event.stopPropagation();
-		event.preventDefault();
 	};
 
 	function remove_key_listeners( event ) {
@@ -304,7 +301,6 @@
 		options = typeof opt !== 'undefined' ? merge_options( default_options, opt ) : default_options;
 
 		dir_vertical = (options.direction == 'vertical');
-
 		if ( !dir_vertical )
 			translate_name = 'translateX';
 
@@ -312,11 +308,6 @@
 		viewport = content.parentNode,
 		indicator = document.getElementById( options.indicator );
 		velocity = 0;
-
-		// prevent content from moving due to child elements margins
-		if ( !dir_vertical ) {
-			content.style[ 'display'] = 'inline-block';
-		}
 
 		if ( typeof window.ontouchstart !== 'undefined' ) {
 			viewport.addEventListener('touchstart', touch);

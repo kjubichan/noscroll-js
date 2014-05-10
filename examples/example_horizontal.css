@@ -147,6 +147,7 @@ html, body, .perspective {
 .container {
 	white-space:nowrap;
 	width: auto;
+	display: inline-block;
 }
 
 .blog-index .item {
